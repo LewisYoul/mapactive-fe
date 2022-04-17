@@ -543,6 +543,10 @@ Ensure the default browser behavior of the `hidden` attribute.
   margin: auto;
 }
 
+.ml-4 {
+  margin-left: 1rem;
+}
+
 .block {
   display: block;
 }
@@ -712,6 +716,10 @@ body {
   top: 0;
   bottom: 0;
   width: 100%;
+}
+
+.mapboxgl-popup {
+  width: 240px;
 }
 
 .hover\:bg-gray-100:hover {

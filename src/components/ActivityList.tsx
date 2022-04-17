@@ -13,8 +13,6 @@ export default function ActivityList(props: ActivityProps) {
   const [hoveredActivity, setHoveredActivity] = useState<Activity>();
 
   useEffect(() => {
-    activities.forEach(activity => activity.addToMap())
-
     let featureCollection = {
       "type": 'FeatureCollection',
       "features": activities.map(activity => {

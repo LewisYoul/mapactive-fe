@@ -30,6 +30,10 @@ function Map() {
   }, [])
 
   useEffect(() => { plotActivities() }, [bearerToken])
+  useEffect(() => {
+    activities.forEach(activity => activity.removeFromMap())
+    filteredActivities.forEach(activity => activity.addToMap())
+  }, [filteredActivities])
 
   const obtainBearerToken = (code: string) => {
     const params = {
@@ -70,7 +74,6 @@ function Map() {
           page++
         }
       }
-      console.log('ba', basicActivities)
 
       basicActivities = basicActivities.filter((activity) => {
         return activity.map?.summary_polyline
@@ -88,8 +91,6 @@ function Map() {
 
     getActivities()
       .then((activities) => {
-        console.log('activities', activities)
-
         setActivities(activities)
         setFilteredActivities(activities)
       })
@@ -108,8 +109,6 @@ function Map() {
 
   const search = (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-
-    filteredActivities.forEach(activity => activity.removeFromMap())
 
     if (!searchTerm) {
       setFilteredActivities(activities)
