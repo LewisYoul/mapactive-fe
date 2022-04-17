@@ -1,5 +1,5 @@
 import polyline from "@mapbox/polyline";
-import * as turf from '@turf/turf'
+import bbox from '@turf/bbox'
 
 export default class Activity {
   activity: any;
@@ -12,7 +12,7 @@ export default class Activity {
   }
 
   boundingBox() {
-    return turf.bbox(this.asGeoJSON() as any)
+    return bbox(this.asGeoJSON() as any)
   }
 
   coordinates() {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import Activity from '../models/Activity';
-import * as turf from '@turf/turf'
+import bbox from '@turf/bbox'
 
 type ActivityProps = {
   activities: Activity[];
@@ -25,9 +25,9 @@ export default function ActivityList(props: ActivityProps) {
       })
     }
 
-    const bbox = turf.bbox(featureCollection as any)
+    const boundingBox = bbox(featureCollection as any)
     // Should probably pass the map around
-    activities[0]?.map.fitBounds(bbox, { padding: 80 })
+    activities[0]?.map.fitBounds(boundingBox, { padding: 80 })
   }, [activities])
 
   useEffect(() => {
