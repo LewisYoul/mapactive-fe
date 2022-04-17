@@ -100,7 +100,7 @@ function Map() {
   const obtainStravaAuth = () => {
     // Really all of these requests should be made server side to prevent secrets from being visible
     const clientId = 57045;
-    const redirectUri = 'https://625c0b947fbd850008fd10ab--delicate-kitsune-469180.netlify.app/';
+    const redirectUri = 'https://625c0b947fbd850008fd10ab--delicate-kitsune-469180.netlify.app';
     const authUri = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=activity:read`
 
     window.location.href = authUri
