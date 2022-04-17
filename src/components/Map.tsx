@@ -8,8 +8,8 @@ import ActivityList from './ActivityList';
 function Map() {
   const [map, setMap] = useState<any>();
   const [bearerToken, setBearerToken] = useState<string>();
-  const [activities, setActivities] = useState<[]>([]);
-  const [filteredActivities, setFilteredActivities] = useState<[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
 
   useEffect(() => {
@@ -103,10 +103,10 @@ function Map() {
     const redirectUri = 'http://localhost:3000';
     const authUri = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=activity:read`
 
-    window.location = authUri
+    window.location.href = authUri
   }
 
-  const search = (event) => {
+  const search = (event: { preventDefault: () => void; }) => {
     event.preventDefault();
 
     filteredActivities.forEach(activity => activity.removeFromMap())
