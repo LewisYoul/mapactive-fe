@@ -1,14 +1,18 @@
 import polyline from "@mapbox/polyline";
+import turf from 'turf';
 
 export default class Activity {
-  constructor(activity, map) {
+  activity: any;
+  map: any;
+  color: any;
+  constructor(activity: any, map: any) {
     this.activity = activity;
     this.map = map;
     this.color = this.getRandomColor()
   }
 
   boundingBox() {
-    return turf.bbox(this.asGeoJSON())
+    return turf.bbox(this.asGeoJSON() as any)
   }
 
   coordinates() {
@@ -23,7 +27,7 @@ export default class Activity {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
     let date = new Date(this.activity.start_date)
 
-    return date.toLocaleDateString("en-GB", options)
+    return date.toLocaleDateString("en-GB", options as any)
   }
 
   flyTo() {

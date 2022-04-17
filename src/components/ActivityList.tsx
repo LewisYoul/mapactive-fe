@@ -24,7 +24,7 @@ export default function ActivityList(props: ActivityProps) {
       })
     }
 
-    const bbox = turf.bbox(featureCollection)
+    const bbox = turf.bbox(featureCollection as any)
     // Should probably pass the map around
     activities[0]?.map.fitBounds(bbox, { padding: 80 })
   }, [activities])
@@ -53,7 +53,7 @@ export default function ActivityList(props: ActivityProps) {
             <ActivityItem
               key={Math.random()}
               onMouseOver={() => { setHoveredActivity(activity) }}
-              onMouseLeave={() => { setHoveredActivity(null) }}
+              onMouseLeave={() => { setHoveredActivity(undefined) }}
               onClick={() => { setFocussedActivity(activity); } }
               activity={activity}
             />
