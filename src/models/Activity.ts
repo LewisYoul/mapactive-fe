@@ -1,5 +1,5 @@
 import polyline from "@mapbox/polyline";
-import turf from 'turf';
+import * as turf from '@turf/turf'
 
 export default class Activity {
   activity: any;

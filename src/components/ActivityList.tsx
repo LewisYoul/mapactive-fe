@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import Activity from '../models/Activity';
+import * as turf from '@turf/turf'
 
 type ActivityProps = {
   activities: Activity[];
