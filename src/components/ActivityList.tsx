@@ -64,7 +64,7 @@ export default function ActivityList(props: ActivityProps) {
   }
 
   return(
-    <div className="relative w-96 overflow-auto">
+    <div className="h-full overflow-auto">
       {content()}
     </div>
   )

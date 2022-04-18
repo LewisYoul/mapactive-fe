@@ -8,7 +8,7 @@ import Strava from '../clients/Strava';
 function Map() {
   const [map, setMap] = useState<any>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
@@ -101,11 +101,14 @@ function Map() {
   }
 
   const activityList = () => {
-    if (isLoggedIn) {
-      return <ActivityList isLoading={isLoading} activities={filteredActivities} />
-    } else {
-      return <></>
-    }
+    if (!isLoggedIn) { return <></> }
+
+    return (
+      <div className="relative w-96">
+        {searchForm()}
+        <ActivityList isLoading={isLoading} activities={filteredActivities} />
+      </div>
+    )
   }
 
   const authButton = () => {
@@ -119,17 +122,13 @@ function Map() {
   }
 
   const searchForm = () => {
-    let form;
+    if (isLoading) { return <></> }
 
-    if (isLoggedIn) {
-      form = (
-        <form onSubmit={search} className="absolute m-auto top-0 inset-x-0 z-50 w-80 text-base">
-          <input onChange={(event) => { setSearchTerm(event.target.value) }} type="text" name="email" id="email" className="px-4 py-2 shadow-sm w-full rounded-b-md" placeholder="Find activity by name" />
-        </form>
-      )
-    }
-
-    return form
+    return (
+      <form onSubmit={search} className="w-full text-base">
+        <input onChange={(event) => { setSearchTerm(event.target.value) }} type="text" name="email" id="email" className="outline-none px-3 py-2 w-full" placeholder="Search by name" />
+      </form>
+    )
   }
 
   return (
@@ -138,7 +137,6 @@ function Map() {
         {activityList()}
         <div className="relative w-full h-full">
           <div id="map">
-            {searchForm()}
             {authButton()}
           </div>
         </div>
