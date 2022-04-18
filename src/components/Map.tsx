@@ -4,10 +4,11 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
 import Activity from '../models/Activity';
 import ActivityList from './ActivityList';
+import Strava from '../clients/Strava';
 
 function Map() {
   const [map, setMap] = useState<any>();
-  const [bearerToken, setBearerToken] = useState<string>();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
@@ -25,36 +26,20 @@ function Map() {
     const searchParams = new URLSearchParams(window.location.search)
 
     if (searchParams.has('code')) {
-      obtainBearerToken(searchParams.get('code') as string)
+      Strava.oauth(searchParams.get('code') as string)
+        .then(token => setIsLoggedIn(true))
+        .catch(console.error)
     }
   }, [])
 
-  useEffect(() => { plotActivities() }, [bearerToken])
+  useEffect(() => { plotActivities() }, [isLoggedIn])
+
   useEffect(() => {
     activities.forEach(activity => activity.removeFromMap())
     filteredActivities.forEach(activity => activity.addToMap())
   }, [filteredActivities])
 
-  const obtainBearerToken = (code: string) => {
-    const params = {
-      client_id: "57045",
-      client_secret: "05a3f29d756923b9bec7648f41f5e3ff997ed60c",
-      code: code,
-      grant_type: "authorization_code"
-    }
-
-    axios.post('https://www.strava.com/oauth/token', null, { params })
-      .then(res => {
-        setBearerToken(res.data.access_token)
-      })
-      .catch(err => {
-        console.error(err)
-      })
-  }
-
   const getActivities = async () => {
-    const activitiesUrl = "https://www.strava.com/api/v3/athlete/activities";
-    const headers = { 'Authorization': `Bearer ${bearerToken}` }
     let page = 1;
     let perPage = 200;
     
@@ -64,7 +49,7 @@ function Map() {
       
       while(hasMoreActivities) {
         const params = { page: page, per_page: perPage }
-        const res = await axios.get(activitiesUrl, { headers, params })
+        const res = await Strava.activities(params)
 
         basicActivities = basicActivities.concat(res.data)
 
@@ -81,13 +66,13 @@ function Map() {
 
       return basicActivities.map((activity) => new Activity(activity, map))
     } catch (err) {
-      console.log('opp', err)
+      console.error('opp', err)
       return [];
     }
   }
 
   const plotActivities = async () => {
-    if (!bearerToken) { return };
+    if (!isLoggedIn) { return };
 
     getActivities()
       .then((activities) => {
@@ -96,15 +81,6 @@ function Map() {
       })
       .catch(console.error)
 
-  }
-
-  const obtainStravaAuth = () => {
-    // Really all of these requests should be made server side to prevent secrets from being visible
-    const clientId = 57045;
-    const redirectUri = 'https://main--delicate-kitsune-469180.netlify.app/';
-    const authUri = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=activity:read`
-
-    window.location.href = authUri
   }
 
   const search = (event: { preventDefault: () => void; }) => {
@@ -128,8 +104,8 @@ function Map() {
   const authButton = () => {
     let button;
 
-    if (!bearerToken) {
-      button = <button onClick={obtainStravaAuth} className="absolute m-4 z-40 top-0 right-0 whitespace-nowrap inline-flex items-center justify-center px-3 py-1 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> Log in with Strava</button>
+    if (!isLoggedIn) {
+      button = <button onClick={Strava.logIn} className="absolute m-4 z-40 top-0 right-0 whitespace-nowrap inline-flex items-center justify-center px-3 py-1 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> Log in with Strava</button>
     }
 
     return button
@@ -138,7 +114,7 @@ function Map() {
   const searchForm = () => {
     let form;
 
-    if (bearerToken) {
+    if (isLoggedIn) {
       form = (
         <form onSubmit={search} className="absolute m-auto top-0 inset-x-0 z-50 w-80 text-base">
           <input onChange={(event) => { setSearchTerm(event.target.value) }} type="text" name="email" id="email" className="px-4 py-2 shadow-sm w-full rounded-b-md" placeholder="Find activity by name" />

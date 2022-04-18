@@ -1,6 +1,7 @@
 import polyline from "@mapbox/polyline";
 import bbox from '@turf/bbox'
 import mapboxgl from "mapbox-gl";
+import axios from 'axios'
 
 export default class Activity {
   activity: any;
