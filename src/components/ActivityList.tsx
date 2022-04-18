@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import ActivityItem from './ActivityItem';
 import Activity from '../models/Activity';
 import bbox from '@turf/bbox'
+import LoaderWithText from './LoaderWithText';
 
 type ActivityProps = {
+  isLoading: boolean;
   activities: Activity[];
 }
 
 export default function ActivityList(props: ActivityProps) {
-  const { activities } = props;
+  const { isLoading, activities } = props;
   const [focussedActivity, setFocussedActivity] = useState<Activity>();
   const [hoveredActivity, setHoveredActivity] = useState<Activity>();
 
@@ -43,22 +45,27 @@ export default function ActivityList(props: ActivityProps) {
     }  
   }, [hoveredActivity])
 
+  const content = () => {
+    if (isLoading) { return <LoaderWithText width={50} height={50} text={'Fetching your activities'} /> }
+
+    return (
+      activities.map((activity: Activity) => {
+        return (
+          <ActivityItem
+            key={Math.random()}
+            onMouseOver={() => { setHoveredActivity(activity) }}
+            onMouseLeave={() => { setHoveredActivity(undefined) }}
+            onClick={() => { setFocussedActivity(activity); } }
+            activity={activity}
+          />
+        )
+      })
+    )
+  }
 
   return(
-    <div className="w-96 overflow-auto">
-      {
-        activities.map((activity: Activity) => {
-          return (
-            <ActivityItem
-              key={Math.random()}
-              onMouseOver={() => { setHoveredActivity(activity) }}
-              onMouseLeave={() => { setHoveredActivity(undefined) }}
-              onClick={() => { setFocussedActivity(activity); } }
-              activity={activity}
-            />
-          )
-        })
-      }
+    <div className="relative w-96 overflow-auto">
+      {content()}
     </div>
   )
 }

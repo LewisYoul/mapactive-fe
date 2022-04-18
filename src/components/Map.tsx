@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import axios from 'axios';
 import Activity from '../models/Activity';
 import ActivityList from './ActivityList';
 import Strava from '../clients/Strava';
@@ -9,6 +8,7 @@ import Strava from '../clients/Strava';
 function Map() {
   const [map, setMap] = useState<any>();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
@@ -40,6 +40,8 @@ function Map() {
   }, [filteredActivities])
 
   const getActivities = async () => {
+    setIsLoading(true)
+
     let page = 1;
     let perPage = 200;
     
@@ -78,6 +80,7 @@ function Map() {
       .then((activities) => {
         setActivities(activities)
         setFilteredActivities(activities)
+        setIsLoading(false)
       })
       .catch(console.error)
 
@@ -98,7 +101,11 @@ function Map() {
   }
 
   const activityList = () => {
-    return activities.length > 0 ? <ActivityList activities={filteredActivities} /> : <></>
+    if (isLoggedIn) {
+      return <ActivityList isLoading={isLoading} activities={filteredActivities} />
+    } else {
+      return <></>
+    }
   }
 
   const authButton = () => {
