@@ -8,14 +8,14 @@ body {
   margin: 0;
 }
 
-#map {
-  display: block;
-  position: absolute; 
-  top: 0;
-  bottom: 0;
-  width: 100%;
-}
-
 .mapboxgl-popup {
   width: 240px;
+}
+
+.max-w-44 {
+  max-width: 11rem;
+}
+
+.z-1000 {
+  z-index: 1000;
 }

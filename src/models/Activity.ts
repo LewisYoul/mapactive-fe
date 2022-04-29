@@ -2,15 +2,18 @@ import polyline from "@mapbox/polyline";
 import bbox from '@turf/bbox'
 import mapboxgl from "mapbox-gl";
 import axios from 'axios'
+import L from "leaflet";
 
 export default class Activity {
   activity: any;
-  map: any;
   color: any;
+  map: any;
+  layer: any;
   constructor(activity: any, map: any) {
     this.activity = activity;
     this.map = map;
     this.color = this.getRandomColor()
+    this.layer = L.geoJSON(this.asGeoJSON())
   }
 
   boundingBox() {
@@ -25,35 +28,57 @@ export default class Activity {
     return `${this.activity.type.toLowerCase()}.svg`
   }
 
-  startDate() {
+  startDateShort() {
+    const options = { year: 'numeric', month: '2-digit', day: 'numeric' }
+    let date = new Date(this.activity.start_date)
+
+    return date.toLocaleDateString("en-GB", options as any)
+  }
+
+  startDateLong() {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
     let date = new Date(this.activity.start_date)
 
     return date.toLocaleDateString("en-GB", options as any)
   }
 
+  totalElevationGain() {
+    return this.activity.total_elevation_gain
+  }
+
+  // colorForDisplay () {
+  //   switch(this.activity.type) {
+  //     case 'Ride':
+  //       return 'orange'
+  //     default:
+  //       return 'purple'
+  //   }
+  // }
+
   flyTo() {
-    this.map.fitBounds(this.boundingBox(), { padding: 80 })
+    this.map.flyToBounds(this.layer.getBounds());
+    this.bringToForeground()
+    // this.map.fitBounds(this.boundingBox(), { padding: 80 })
   }
 
-  hide() {
-    this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 0.2);
-  }
+  // hide() {
+  //   this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 0.2);
+  // }
 
-  mouseover() {
-    if (this.map.getLayer(`route-${this.activity.id}`)) {
-      this.map.moveLayer(`route-${this.activity.id}`);
-      this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 1);
-      this.map.setPaintProperty(`route-${this.activity.id}`, 'line-color', '#E34A01');
-    }
-  }
+  // mouseover() {
+  //   if (this.map.getLayer(`route-${this.activity.id}`)) {
+  //     this.map.moveLayer(`route-${this.activity.id}`);
+  //     this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 1);
+  //     this.map.setPaintProperty(`route-${this.activity.id}`, 'line-color', '#E34A01');
+  //   }
+  // }
 
-  mouseleave() {
-    if (this.map.getLayer(`route-${this.activity.id}`)) {
-      this.map.setPaintProperty(`route-${this.activity.id}`, 'line-color', this.color);
-      this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 1);
-    }
-  }
+  // mouseleave() {
+  //   if (this.map.getLayer(`route-${this.activity.id}`)) {
+  //     this.map.setPaintProperty(`route-${this.activity.id}`, 'line-color', this.color);
+  //     this.map.setPaintProperty(`route-${this.activity.id}`, 'line-opacity', 1);
+  //   }
+  // }
 
   name() {
     return this.activity.name
@@ -74,6 +99,7 @@ export default class Activity {
   }
 
   asGeoJSON() {
+    console.log('this act', this.activity)
     return polyline.toGeoJSON(this.activity.map.summary_polyline)
   }
 
@@ -82,45 +108,28 @@ export default class Activity {
   }
 
   addToMap() {
-    this.map.addSource(`route-${this.activity.id}`, {
-      'type': 'geojson',
-      'data': {
-        'type': 'Feature',
-        'properties': {},
-        'geometry': this.asGeoJSON()
-      }
-    });
+    this.layer.addTo(this.map)
+    this.sendToBackground()
+  }
 
-    this.map.addLayer(
-      {
-        'id': `route-${this.activity.id}`,
-        'type': 'line',
-        'source': `route-${this.activity.id}`,
-        'layout': {
-        'line-join': 'round',
-        'line-cap': 'round'
-      },
-        'paint': {
-        'line-color': this.color,
-        'line-width': 3
-      }
-    });
+  removeFromMap() {
+    this.map.removeLayer(this.layer)
+  }
 
-    this.map.on('mouseenter', `route-${this.activity.id}`, () => {
-      this.map.getCanvas().style.cursor = 'pointer';
-    });
-      
-    this.map.on('mouseleave', `route-${this.activity.id}`, () => {
-      this.map.getCanvas().style.cursor = '';
-    });
+  sendToBackground() {
+    this.layer.setStyle({
+      weight: 3,
+      color: '#6B20A8',
+      opacity: 0.5
+    })
+  }
 
-    this.map.on('click', `route-${this.activity.id}`, (e: any) => {
-      console.log(e)
-
-      new mapboxgl.Popup()
-        .setLngLat(e.lngLat)
-        .setHTML(this.popupHTML())
-        .addTo(this.map);
+  bringToForeground() {
+    this.layer.bringToFront()
+    this.layer.setStyle({
+      weight: 3,
+      color: '#FC4C01',
+      opacity: 1.0
     })
   }
 
@@ -143,12 +152,12 @@ export default class Activity {
     )
   }
 
-  removeFromMap() {
-    const id = `route-${this.activity.id}`
+  // removeFromMap() {
+  //   const id = `route-${this.activity.id}`
 
-    if (this.map.getLayer(id)) { this.map.removeLayer(id) }
-    if (this.map.getSource(id)) { this.map.removeSource(id) }
-  }
+  //   if (this.map.getLayer(id)) { this.map.removeLayer(id) }
+  //   if (this.map.getSource(id)) { this.map.removeSource(id) }
+  // }
 
   getRandomColor() {
     var letters = '0123456789ABCDEF';

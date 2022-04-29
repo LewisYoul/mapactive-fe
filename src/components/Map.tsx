@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
 import Activity from '../models/Activity';
 import ActivityList from './ActivityList';
 import Strava from '../clients/Strava';
+import Panel from './Panel';
+import L from 'leaflet'
 
 function Map() {
   const [map, setMap] = useState<any>();
@@ -12,14 +12,20 @@ function Map() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>();
+  const [selectedActivity, setSelectedActivity] = useState<Activity>();
 
   useEffect(() => {
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGV3aXN5b3VsIiwiYSI6ImNqYzM3a3lndjBhOXQyd24zZnVleGh3c2kifQ.qVH2-BA02t3p62tG72-DZA';
+    const newMap = L.map('map').setView([51.505, -0.09], 13);
+    const accessToken = 'pk.eyJ1IjoibGV3aXN5b3VsIiwiYSI6ImNqYzM3a3lndjBhOXQyd24zZnVleGh3c2kifQ.qVH2-BA02t3p62tG72-DZA';
 
-    const newMap = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/streets-v11'
-    });
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 18,
+      tileSize: 512,
+      id: 'mapbox/streets-v11',
+      zoomOffset: -1,
+      accessToken: accessToken
+    }).addTo(newMap);
 
     setMap(newMap)
 
@@ -33,6 +39,18 @@ function Map() {
   }, [])
 
   useEffect(() => { plotActivities() }, [isLoggedIn])
+
+  useEffect(() => {
+    if (!selectedActivity) { return }
+
+    const nonSelectedActivities = activities.filter((activity) => {
+      return activity !== selectedActivity      
+    })
+
+    nonSelectedActivities.forEach((activity) => { activity.sendToBackground() })
+
+    selectedActivity.flyTo()
+  }, [selectedActivity])
 
   useEffect(() => {
     activities.forEach(activity => activity.removeFromMap())
@@ -66,7 +84,7 @@ function Map() {
         return activity.map?.summary_polyline
       })
 
-      return basicActivities.map((activity) => new Activity(activity, map))
+      return basicActivities
     } catch (err) {
       console.error('opp', err)
       return [];
@@ -78,8 +96,9 @@ function Map() {
 
     getActivities()
       .then((activities) => {
-        setActivities(activities)
-        setFilteredActivities(activities)
+        const activityInstances = activities.map((activity) => { return new Activity(activity, map) })
+        setActivities(activityInstances)
+        setFilteredActivities(activityInstances)
         setIsLoading(false)
       })
       .catch(console.error)
@@ -100,14 +119,34 @@ function Map() {
     }
   }
 
+  const selectActivity = (activity: Activity) => {
+    console.log('act', activity)
+    if (selectedActivity) {
+      if (selectedActivity === activity) {
+        setSelectedActivity(undefined)
+      } else {
+        setSelectedActivity(activity)
+      }
+    } else {
+      setSelectedActivity(activity)
+    }
+  }
+
+  const closePanel = () => {
+    setSelectedActivity(undefined)
+  }
+
   const activityList = () => {
     if (!isLoggedIn) { return <></> }
 
     return (
-      <div className="relative w-96">
-        {searchForm()}
-        <ActivityList isLoading={isLoading} activities={filteredActivities} />
-      </div>
+        // {/* {searchForm()} */}
+        <ActivityList
+          isLoading={isLoading}
+          activities={filteredActivities}
+          selectActivity={selectActivity}
+          selectedActivity={selectedActivity}
+        />
     )
   }
 
@@ -115,7 +154,7 @@ function Map() {
     let button;
 
     if (!isLoggedIn) {
-      button = <button onClick={Strava.logIn} className="absolute m-4 z-40 top-0 right-0 whitespace-nowrap inline-flex items-center justify-center px-3 py-1 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> Log in with Strava</button>
+      button = <button onClick={Strava.logIn} className="absolute m-4 z-1000 top-0 right-0 whitespace-nowrap inline-flex items-center justify-center px-3 py-1 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"> Log in with Strava</button>
     }
 
     return button
@@ -132,13 +171,29 @@ function Map() {
   }
 
   return (
-    <div className="w-full h-full">
-      <div className="flex w-full h-full">
-        {activityList()}
-        <div className="relative w-full h-full">
-          <div id="map">
-            {authButton()}
+    // <div className="flex w-full h-full">
+    //   {activityList()}
+    //   <div className="relative w-full h-full">
+        // <div id="map">
+        //   {authButton()}
+        // </div>
+    //   </div>
+    //   <div className="bg-green-200 flex-none w-96"></div>
+    // </div>
+    <div className="flex w-full h-full">
+      <div className="w-full flex flex-col">
+        <div className="bg-red-200 w-full h-full flex">
+          <div className="w-full h-full">
+            <div className="relative h-full w-full" id="map">
+              {authButton()}
+            </div>
           </div>
+          {selectedActivity ? 
+            <Panel activity={selectedActivity} closePanel={closePanel}/>
+          : null}
+        </div>
+        <div className="flex-none h-80 overflow-auto">
+          {activityList()}
         </div>
       </div>
     </div>
