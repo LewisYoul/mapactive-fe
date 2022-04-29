@@ -9,6 +9,7 @@ interface ActivitiesParams {
 const clientId = "57045"
 const clientSecret = "05a3f29d756923b9bec7648f41f5e3ff997ed60c";
 const redirectUri = 'https://main--delicate-kitsune-469180.netlify.app/';
+// const redirectUri = 'http://localhost:3000';
 
 const Strava = {
   logIn: () => {

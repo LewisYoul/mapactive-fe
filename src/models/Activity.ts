@@ -1,7 +1,5 @@
 import polyline from "@mapbox/polyline";
 import bbox from '@turf/bbox'
-import mapboxgl from "mapbox-gl";
-import axios from 'axios'
 import L from "leaflet";
 
 export default class Activity {
@@ -133,24 +131,24 @@ export default class Activity {
     })
   }
 
-  popupHTML() {
-    return (
-      `
-      <div class="w-full">
-        <div class="flex justify-between">
-          <span class="block text-base">${this.name()}</span>
-          <div class="ml-4">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">${this.type()}</span>
-          </div>
-        </div>
-        <div class="flex justify-between">
-          <span class="block text-xs text-gray-500">${this.startDate()}</span>
-          <span class="block text-xs">${this.distance()}km</span>
-        </div>
-      </div>
-      `
-    )
-  }
+  // popupHTML() {
+  //   return (
+  //     `
+  //     <div class="w-full">
+  //       <div class="flex justify-between">
+  //         <span class="block text-base">${this.name()}</span>
+  //         <div class="ml-4">
+  //           <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">${this.type()}</span>
+  //         </div>
+  //       </div>
+  //       <div class="flex justify-between">
+  //         <span class="block text-xs text-gray-500">${this.startDate()}</span>
+  //         <span class="block text-xs">${this.distance()}km</span>
+  //       </div>
+  //     </div>
+  //     `
+  //   )
+  // }
 
   // removeFromMap() {
   //   const id = `route-${this.activity.id}`
