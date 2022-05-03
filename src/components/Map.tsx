@@ -192,7 +192,7 @@ function Map() {
             <Panel activity={selectedActivity} closePanel={closePanel}/>
           : null}
         </div>
-        <div className="flex-none h-80 overflow-auto">
+        <div className="h-96 overflow-auto">
           {activityList()}
         </div>
       </div>

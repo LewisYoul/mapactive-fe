@@ -7,11 +7,13 @@ export default class Activity {
   color: any;
   map: any;
   layer: any;
+  id: string;
   constructor(activity: any, map: any) {
     this.activity = activity;
     this.map = map;
     this.color = this.getRandomColor()
     this.layer = L.geoJSON(this.asGeoJSON())
+    this.id = activity.id
   }
 
   boundingBox() {
@@ -54,8 +56,8 @@ export default class Activity {
   // }
 
   flyTo() {
-    this.map.flyToBounds(this.layer.getBounds());
     this.bringToForeground()
+    this.map.flyToBounds(this.layer.getBounds());
     // this.map.fitBounds(this.boundingBox(), { padding: 80 })
   }
 
@@ -90,6 +92,8 @@ export default class Activity {
     switch(this.activity.type) {
       case 'StandUpPaddling':
         return 'SUP'
+      case 'NordicSki':
+        return 'Nordic Ski'
       default:
         return this.activity.type
     }
@@ -97,7 +101,6 @@ export default class Activity {
   }
 
   asGeoJSON() {
-    console.log('this act', this.activity)
     return polyline.toGeoJSON(this.activity.map.summary_polyline)
   }
 
@@ -123,12 +126,44 @@ export default class Activity {
   }
 
   bringToForeground() {
-    this.layer.bringToFront()
     this.layer.setStyle({
       weight: 3,
       color: '#FC4C01',
       opacity: 1.0
     })
+    this.layer.bringToFront()
+  }
+
+  // probably encapsulate this in component?
+  textColorClass() {
+    switch(this.activity.type) {
+      case 'Snowshoe':
+        return 'text-pink-800'
+      case 'Run':
+        return 'text-red-800'
+      case 'Walk':
+        return 'text-green-800'
+      case 'NordicSki':
+        return 'text-orange-800'
+      default:
+        return 'text-purple-800'
+      }
+    }
+      
+  // probably encapsulate this in component?
+  bgColorClass() {
+    switch(this.activity.type) {
+      case 'Snowshoe':
+        return 'bg-pink-100'
+      case 'Run':
+        return 'bg-red-100'
+      case 'Walk':
+        return 'bg-green-100'
+      case 'NordicSki':
+        return 'bg-orange-100'
+      default:
+        return 'bg-purple-100'
+    }
   }
 
   // popupHTML() {

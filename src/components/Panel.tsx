@@ -1,5 +1,7 @@
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useEffect, useState } from "react";
+import Strava from "../clients/Strava";
 import Activity from "../models/Activity";
+import Badge from "./Badge";
 
 type PanelProps = {
   activity: Activity;
@@ -8,12 +10,59 @@ type PanelProps = {
 
 export default function Panel(props: PanelProps) {
   const { activity, closePanel } = props;
+  const [photos, setPhotos] = useState<[]>([]);
+
+  useEffect(() => {
+    // Strava.activity(activity.id)
+    // .then(res => {
+    //   console.log('full activity', res)
+    //   setPhotos(res.data)
+    // })
+    // .catch(console.error)
+
+    Strava.activityPhotos(activity.id)
+      .then(res => {
+        console.log('photos', res)
+        setPhotos(res.data)
+      })
+      .catch(console.error)
+  }, [activity])
+
+  // useEffect(() => {
+  //   if (!hasPhotos()) { return }
+
+  //   // console.log('photos', photos)
+
+  //   // Strava.photo(photos[0].unique_id)
+  //   //   .then(res => {console.log('pres', res)})
+  //   //   .catch(console.error)
+  // }, [photos])
+
+  const hasPhotos = () => {
+    return photos.length > 0
+  }
+
+  const photosEl = () => {
+    console.log('got', photos)
+    if (!hasPhotos()) { return }
+    console.log('dntgot')
+
+    return (
+      <div className="divide-x-4 divide-white mr-4 bg-green-300 w-full h-40 overflow-x-auto flex bg-black">
+        {photos.map((photo) => {
+          return (
+            <img className="flex-none object-cover w-40 h-40 hover:opacity-90" src={photo.urls[0].replace('-48x64.', '-576x768.').replace('-64x48.', '-768x576.')}></img>
+          )
+        })}
+      </div>
+    )
+  }
 
   return(
-    <div className="flex-none w-96 px-4 py-6 bg-white">
+    <div className="flex-none w-96 px-6 py-6 bg-white overflow-auto">
       <div className="flex items-start justify-between">
         <div>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">{activity.type()}</span>
+          <Badge className={`${activity.bgColorClass()} ${activity.textColorClass()}`}>{activity.type()}</Badge>
           <span className="ml-2 text-sm text-gray-700">{activity.startDateLong()}</span>
         </div>
         <div className="ml-3 flex h-7 items-center">
@@ -26,6 +75,9 @@ export default function Panel(props: PanelProps) {
         </div>
       </div>
       <h2 className="text-lg font-medium text-gray-900" id="slide-over-title">{activity.name()}</h2>
+      <div className="mt-3">
+        {photosEl()}
+      </div>
     </div>
   )
 }

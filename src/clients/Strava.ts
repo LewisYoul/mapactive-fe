@@ -39,10 +39,30 @@ const Strava = {
   activities: (params: ActivitiesParams) => {
     const bearerToken = Cookies.get('stravaBearerToken')
     const headers = { 'Authorization': `Bearer ${bearerToken}` }
-
+    
     return axios.get("https://www.strava.com/api/v3/athlete/activities", { headers, params })
-  }
+  },
 
+  activity: (id: string) => {
+    const bearerToken = Cookies.get('stravaBearerToken')
+    const headers = { 'Authorization': `Bearer ${bearerToken}` }
+
+    return axios.get(`https://www.strava.com/api/v3/activities/${id}`, { headers })
+  },
+  
+  activityPhotos: (activityId: string) => {
+    const bearerToken = Cookies.get('stravaBearerToken')
+    const headers = { 'Authorization': `Bearer ${bearerToken}` }
+
+    return axios.get(`https://www.strava.com/api/v3/activities/${activityId}/photos?photo_source=true`, { headers })
+  },
+  
+  photo: (activityId: string, photoId: string) => {
+    const bearerToken = Cookies.get('stravaBearerToken')
+    const headers = { 'Authorization': `Bearer ${bearerToken}` }
+
+    return axios.get(`https://www.strava.com/api/v3/activities/${activityId}/photos/${photoId}`, { headers })
+  },
 }
 
 export default Strava;
