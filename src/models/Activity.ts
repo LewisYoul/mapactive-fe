@@ -8,12 +8,19 @@ export default class Activity {
   map: any;
   layer: any;
   id: string;
-  constructor(activity: any, map: any) {
+  constructor(activity: any, map: any, selectActivity: Function) {
     this.activity = activity;
     this.map = map;
     this.color = this.getRandomColor()
     this.layer = L.geoJSON(this.asGeoJSON())
     this.id = activity.id
+
+    this.layer.on({
+      click: () => { 
+        console.log(this.layer.toGeoJSON())
+        selectActivity(this)
+       }
+    })
   }
 
   boundingBox() {
@@ -57,7 +64,13 @@ export default class Activity {
 
   flyTo() {
     this.bringToForeground()
-    this.map.flyToBounds(this.layer.getBounds());
+    this.map.flyToBounds(this.layer.getBounds(), { 'duration': 2 });
+    const renderFunc = () => { this.map.fire('viewreset') };
+    this.map.on('move', renderFunc) 
+    setTimeout(() => {
+      this.map.off('move', renderFunc) 
+    }, 2000)
+    
     // this.map.fitBounds(this.boundingBox(), { padding: 80 })
   }
 

@@ -55,6 +55,9 @@ function Map() {
   useEffect(() => {
     activities.forEach(activity => activity.removeFromMap())
     filteredActivities.forEach(activity => activity.addToMap())
+    const fg = L.featureGroup(filteredActivities.map(activity => activity.layer))
+    map?.flyToBounds(fg.getBounds())
+    console.log('b', fg.getBounds())
   }, [filteredActivities])
 
   const getActivities = async () => {
@@ -96,7 +99,7 @@ function Map() {
 
     getActivities()
       .then((activities) => {
-        const activityInstances = activities.map((activity) => { return new Activity(activity, map) })
+        const activityInstances = activities.map((activity) => { return new Activity(activity, map, selectActivity) })
         setActivities(activityInstances)
         setFilteredActivities(activityInstances)
         setIsLoading(false)
@@ -120,7 +123,6 @@ function Map() {
   }
 
   const selectActivity = (activity: Activity) => {
-    console.log('act', activity)
     if (selectedActivity) {
       if (selectedActivity === activity) {
         setSelectedActivity(undefined)
