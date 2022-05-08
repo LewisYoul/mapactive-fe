@@ -41,7 +41,10 @@ function Map() {
   useEffect(() => { plotActivities() }, [isLoggedIn])
 
   useEffect(() => {
-    if (!selectedActivity) { return }
+    if (!selectedActivity) {
+      map?.invalidateSize()
+      return
+    }
 
     const nonSelectedActivities = activities.filter((activity) => {
       return activity !== selectedActivity      
@@ -50,14 +53,15 @@ function Map() {
     nonSelectedActivities.forEach((activity) => { activity.sendToBackground() })
 
     selectedActivity.flyTo()
+    map.invalidateSize()
   }, [selectedActivity])
 
   useEffect(() => {
     activities.forEach(activity => activity.removeFromMap())
     filteredActivities.forEach(activity => activity.addToMap())
     const fg = L.featureGroup(filteredActivities.map(activity => activity.layer))
-    map?.flyToBounds(fg.getBounds())
-    console.log('b', fg.getBounds())
+    map?.flyToBounds(fg.getBounds(), { duration: 2 })
+
   }, [filteredActivities])
 
   const getActivities = async () => {

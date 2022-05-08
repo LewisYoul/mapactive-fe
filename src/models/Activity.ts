@@ -64,7 +64,7 @@ export default class Activity {
 
   flyTo() {
     this.bringToForeground()
-    this.map.flyToBounds(this.layer.getBounds(), { 'duration': 2 });
+    this.map.flyToBounds(this.layer.getBounds(), { 'duration': 2, padding: [100, 100] });
     const renderFunc = () => { this.map.fire('viewreset') };
     this.map.on('move', renderFunc) 
     setTimeout(() => {
