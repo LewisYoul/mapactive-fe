@@ -1,4 +1,4 @@
-import { MouseEventHandler } from 'react';
+import { MouseEventHandler, useEffect } from 'react';
 import Activity from '../models/Activity';
 import Badge from './Badge';
 
@@ -11,7 +11,7 @@ type ActivityProps = {
 }
 
 export default function ActivityItem(props: ActivityProps) {
-  const { activity, selectActivity, onMouseLeave, onMouseOver, isSelected } = props;
+  const { activity, selectActivity, isSelected } = props;
 
   const classes = () => {
     let classString = "cursor-pointer "
@@ -24,7 +24,7 @@ export default function ActivityItem(props: ActivityProps) {
   }
 
   return(
-    <tr className={classes()} onClick={selectActivity}>
+    <tr id={activity.id} className={classes()} onClick={selectActivity}>
       <td className="whitespace-nowrap py-1.5 pl-4 pr-3 text-sm text-gray-900 sm:pl-6">{activity.name()}</td>
       <td className="whitespace-nowrap px-2 py-1.5 text-sm text-gray-900">{activity.startDateShort()}</td>
       <td className="whitespace-nowrap px-2 py-1.5 text-sm text-gray-900">

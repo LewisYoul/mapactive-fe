@@ -198,7 +198,7 @@ function Map() {
             <Panel activity={selectedActivity} closePanel={closePanel}/>
           : null}
         </div>
-        <div className="h-96 overflow-auto">
+        <div id="listContainer" className="h-96 overflow-auto relative">
           {activityList()}
         </div>
       </div>

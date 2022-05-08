@@ -56,7 +56,7 @@ export default function Panel(props: PanelProps) {
   }
 
   return(
-    <div className="flex-none w-96 px-6 py-6 bg-white overflow-auto">
+    <div className="flex-none hidden md:block w-96 px-6 py-6 bg-white overflow-auto">
       <div className="flex items-start justify-between">
         <div>
           <Badge className={`${activity.bgColorClass()} ${activity.textColorClass()}`}>{activity.type()}</Badge>
