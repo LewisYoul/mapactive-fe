@@ -146,13 +146,14 @@ function Map() {
     if (!isLoggedIn) { return <></> }
 
     return (
-        // {/* {searchForm()} */}
+      <div id="listContainer" className="h-96 overflow-auto relative">
         <ActivityList
           isLoading={isLoading}
           activities={filteredActivities}
           selectActivity={selectActivity}
           selectedActivity={selectedActivity}
         />
+      </div>
     )
   }
 
@@ -198,9 +199,7 @@ function Map() {
             <Panel activity={selectedActivity} closePanel={closePanel}/>
           : null}
         </div>
-        <div id="listContainer" className="h-96 overflow-auto relative">
-          {activityList()}
-        </div>
+        {activityList()}
       </div>
     </div>
   )
