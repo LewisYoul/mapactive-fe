@@ -28,10 +28,12 @@ function Map() {
     }).addTo(newMap);
 
     setMap(newMap)
-
+    console.log('loc', window.location)
+    console.log('search', window.location.search)
     const searchParams = new URLSearchParams(window.location.search)
-
-    if (searchParams.has('code')) {
+    const code = searchParams.get('code')
+    console.log('code', code)
+    if (code) {
       Strava.oauth(searchParams.get('code') as string)
         .then(token => setIsLoggedIn(true))
         .catch(console.error)
