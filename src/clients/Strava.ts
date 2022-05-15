@@ -13,7 +13,7 @@ const redirectUri = 'https://actviti.com/';
 
 const Strava = {
   logIn: () => {
-    const authUri = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=force&scope=activity:read`
+    const authUri = `https://www.strava.com/oauth/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&approval_prompt=auto&scope=activity:read`
 
     window.location.href = authUri
   },
